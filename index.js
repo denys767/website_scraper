@@ -202,7 +202,7 @@ async function generateLinkedInReport() {
 
 bot.command('websitesummary', async (ctx) => {
     console.log(`User requested website summary: ${ctx.chat.id}`);
-    ctx.reply("Generating website summary, please wait for 3-5 minutes...");
+    ctx.reply("Generating website summary, please wait for 5-9 minutes...");
     try {
         const report = await generateWebsiteReport();
         const messageParts = splitMessage(report);
@@ -215,7 +215,7 @@ bot.command('websitesummary', async (ctx) => {
 
 bot.command('linkedinsummary', async (ctx) => {
     console.log(`User requested LinkedIn summary: ${ctx.chat.id}`);
-    ctx.reply("Generating LinkedIn summary, please wait for 3-5 minutes...");
+    ctx.reply("Generating LinkedIn summary, please wait for 5-9 minutes...");
     try {
         const report = await generateLinkedInReport();
         const messageParts = splitMessage(report);
@@ -228,7 +228,7 @@ bot.command('linkedinsummary', async (ctx) => {
 
 bot.command('fullsummary', async (ctx) => {
     console.log(`User requested full summary: ${ctx.chat.id}`);
-    ctx.reply("Generating full summary, please wait for 7-9 minutes...");
+    ctx.reply("Generating full summary, please wait for 10-15 minutes...");
     try {
         const websiteReport = await generateWebsiteReport();
         const linkedinReport = await generateLinkedInReport();
