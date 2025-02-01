@@ -11,7 +11,10 @@
 3. Run ```/updatecookie``` command in the bot.
 4. Upload the JSON file after running the command. **Be aware that scraping data from LinkedIn is against their TOS, your account may get banned - don't use your main account!** 
 5. Cookie should be successfully updated.
-6. To check whether cookie update worked, run ```/linkedinsummary``` command. If results are not as expected, contact the developer (me :L ): @Rediska5_5_5.
+6. To check whether cookie update worked, run ```/linkedinsummary``` command. If results are not as expected try:
+- Making and a uploading another cookie, after searching for something on linkedin
+- Make and upload cookie from other account, because LinkedIn may flag you for suspicious activity.
+- If nothing helped, contact author - @Rediska5_5_5
 
 
 

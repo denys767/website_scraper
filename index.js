@@ -38,7 +38,7 @@ bot.start((ctx) => {
 });
 
 bot.command('updatecookie', async (ctx) => {
-    ctx.reply("Upload JSON-format cookie file of your LinkedIn session provided by this extension. https://chromewebstore.google.com/detail/export-cookie-json-file-f/nmckokihipjgplolmcmjakknndddifde?hl=ru. Make sure to update it every 12 days to avoid expiration. BE AWARE: YOUR LINKEDIN ACCOUNT MAY BE BANNED FOR SCRAPING DATA! After uploading the file, check if it works by running linkedin summary command. If it doesn't work - contact @Rediska5_5_5 (author).");
+    ctx.reply("Upload JSON-format cookie file of your LinkedIn session provided by this extension. https://chromewebstore.google.com/detail/export-cookie-json-file-f/nmckokihipjgplolmcmjakknndddifde?hl=ru. Make sure to update it every 12 days to avoid expiration. BE AWARE: YOUR LINKEDIN ACCOUNT MAY BE BANNED FOR SCRAPING DATA! After uploading the file, check if it works by running linkedin summary command.\n\nIf results are not as expected try:\n - Making and a uploading another cookie, after searching for something on linkedin\n - Make and upload cookie from other account, because LinkedIn may flag you for suspicious activity.\n - If nothing helped, contact author - @Rediska5_5_5");
 
     bot.on('document', async (ctx) => {
         const fileId = ctx.message.document.file_id;
