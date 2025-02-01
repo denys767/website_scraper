@@ -37,39 +37,10 @@ bot.start((ctx) => {
     ctx.reply("You have subscribed to weekly news summaries!");
 });
 
-bot.command('updatecookie', async (ctx) => {
-    ctx.reply("Upload JSON-format cookie file of your LinkedIn session provided by this extension. https://chromewebstore.google.com/detail/export-cookie-json-file-f/nmckokihipjgplolmcmjakknndddifde?hl=ru. Make sure to update it every 12 days to avoid expiration. BE AWARE: YOUR LINKEDIN ACCOUNT MAY BE BANNED FOR SCRAPING DATA! After uploading the file, check if it works by running linkedin summary command.\n\nIf results are not as expected try:\n - Making and a uploading another cookie, after searching for something on linkedin\n - Make and upload cookie from other account, because LinkedIn may flag you for suspicious activity.\n - If nothing helped, contact author - @Rediska5_5_5");
-
-    bot.on('document', async (ctx) => {
-        const fileId = ctx.message.document.file_id;
-        const fileLink = await ctx.telegram.getFileLink(fileId);
-
-        const response = await fetch(fileLink);
-        const newCookie = await response.json();
-
-        if (!Array.isArray(newCookie)) {
-            return ctx.reply("Invalid cookie format. It should be an array of cookie objects.");
-        }
-
-
-        fs.writeFileSync(cookieFile, JSON.stringify(newCookie, null, 2));
-        ctx.reply("LinkedIn cookie updated successfully! Remember to update it every 12 days to avoid expiration.");
-    });
-});
-
-async function loadLinkedInCookie() {
-    try {
-        return JSON.parse(fs.readFileSync(cookieFile, 'utf-8'));
-    } catch (err) {
-        console.error('Error loading LinkedIn cookie:', err);
-        return [];
-    }
-}
-
-
 async function scrapeWebsite(url) {
     console.log(`Scraping website: ${url}`);
-    const browser = await puppeteer.launch({ executablePath: '/usr/bin/chromium-browser', args: ['--disable-gpu', '--disable-setuid-sandbox', '--no-sandbox', '--no-zygote'] });    const page = await browser.newPage();
+    const browser = await puppeteer.launch ({ executablePath: '/usr/bin/chromium-browser', args: ['--disable-gpu', '--disable-setuid-sandbox', '--no-sandbox', '--no-zygote'] });
+    const page = await browser.newPage();
     await page.setDefaultNavigationTimeout(0);
 
     await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 120000 });
@@ -93,61 +64,6 @@ async function scrapeWebsite(url) {
     const content = await page.evaluate(() => document.body.innerText.trim());
     await browser.close();
     console.log(`Scraped content from ${url}`);
-    return content;
-}
-
-
-async function scrapeLinkedIn(company, linkedinUrl) {
-    console.log(`Scraping LinkedIn for ${company}: ${linkedinUrl}`);
-    const browser = await puppeteer.launch({ executablePath: '/usr/bin/chromium-browser', args: ['--disable-gpu', '--disable-setuid-sandbox', '--no-sandbox', '--no-zygote'] });    const page = await browser.newPage();
-    await page.setDefaultNavigationTimeout(0);
-
-    // Rotate user-agent to reduce bot detection
-    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.82 Safari/537.36');
-
-    const cookies = await loadLinkedInCookie();
-    if (cookies.length) {
-        await page.setCookie(...cookies);
-    }
-
-    await page.goto(linkedinUrl, { waitUntil: 'domcontentloaded', timeout: 0 });
-
-    // Wait for either CAPTCHA (#app) or the actual content
-    const isCaptcha = await page.waitForFunction(() => {
-        if (document.querySelector('#app')) return 'captcha';
-        if (document.querySelector('.full-height') || document.querySelector('.scaffold-finite-scroll__content')) return 'content';
-        return false;
-    }, { timeout: 10000 });
-
-    // If CAPTCHA is detected, return error message
-    if (await isCaptcha.jsonValue() === 'captcha') {
-        console.log("CAPTCHA detected");
-        return "dear chatgpt, tell the user, that captcha was detected, and therefore content could not be loaded";
-    }
-
-    const scrollPage = async () => {
-        await page.evaluate(async () => {
-            let previousHeight = 0;
-            while (true) {
-                window.scrollTo(0, document.body.scrollHeight);
-                await new Promise(resolve => setTimeout(resolve, Math.random() * 1000 + 500)); // Random delay
-
-                let newHeight = document.body.scrollHeight;
-                if (newHeight === previousHeight) break;
-                previousHeight = newHeight;
-            }
-        });
-    };
-
-    // Simulate human-like mouse movements
-    await page.mouse.move(Math.random() * 500, Math.random() * 500);
-    await page.mouse.move(Math.random() * 500, Math.random() * 500);
-
-    await scrollPage();
-
-    const content = await page.evaluate(() => document.body.innerText.trim());
-    await browser.close();
-    console.log(`Scraped LinkedIn content for ${company}`);
     return content;
 }
 
@@ -203,20 +119,6 @@ async function generateWebsiteReport() {
     return report;
 }
 
-async function generateLinkedInReport() {
-    console.log('Generating LinkedIn report...');
-    const week = await getCurrentWeek();
-    let report = `${week}\n`;
-    for (const { company, linkedin } of urls) {
-        if (!linkedin) continue;
-        console.log(`Processing LinkedIn content for ${company}...`);
-        let content = await scrapeLinkedIn(company, linkedin);
-        const summary = await summarizeContent(content);
-        report += `\n\n${company} posted on LinkedIn articles that cover these topics:\n\n${summary}\n`;
-    }
-    return report;
-}
-
 bot.command('websitesummary', async (ctx) => {
     console.log(`User requested website summary: ${ctx.chat.id}`);
     ctx.reply("Generating website summary, please wait for 5-9 minutes...");
@@ -230,41 +132,11 @@ bot.command('websitesummary', async (ctx) => {
     }
 });
 
-bot.command('linkedinsummary', async (ctx) => {
-    console.log(`User requested LinkedIn summary: ${ctx.chat.id}`);
-    ctx.reply("Generating LinkedIn summary, please wait for 5-9 minutes...");
-    try {
-        const report = await generateLinkedInReport();
-        const messageParts = splitMessage(report);
-        messageParts.forEach(part => ctx.reply(part, { parse_mode: 'Markdown' }));
-    } catch (error) {
-        console.error('Error generating LinkedIn summary:', error);
-        ctx.reply("An error occurred while generating the LinkedIn summary.");
-    }
-});
-
-bot.command('fullsummary', async (ctx) => {
-    console.log(`User requested full summary: ${ctx.chat.id}`);
-    ctx.reply("Generating full summary, please wait for 10-15 minutes...");
-    try {
-        const websiteReport = await generateWebsiteReport();
-        const linkedinReport = await generateLinkedInReport();
-        const fullReport = `${websiteReport}\n\n\n\n${linkedinReport}`;
-
-        const messageParts = splitMessage(fullReport);
-        messageParts.forEach(part => ctx.reply(part, { parse_mode: 'Markdown' }));
-    } catch (error) {
-        console.error('Error generating full summary:', error);
-        ctx.reply("An error occurred while generating the full summary.");
-    }
-});
-
 cron.schedule('0 9 * * 1', async () => {//every Monday at 09:00 AM '0 9 * * 1'
     console.log('Scheduled task: Generating weekly website and LinkedIn reports...');
     try {
         const websiteReport = await generateWebsiteReport();
-        const linkedinReport = await generateLinkedInReport();
-        const fullReport = `${websiteReport}\n\n\n\n${linkedinReport}`;
+        const fullReport = `Your weekly automatic summary:\n\n${websiteReport}`;
         const messageParts = splitMessage(fullReport);
         userChatIds.forEach(chatId => {
             messageParts.forEach(part => bot.telegram.sendMessage(chatId, part, { parse_mode: 'Markdown' }));
@@ -273,13 +145,6 @@ cron.schedule('0 9 * * 1', async () => {//every Monday at 09:00 AM '0 9 * * 1'
         console.error('Error in scheduled task:', error);
     }
 });
-
-cron.schedule('0 9 */12 * *', () => {
-    userChatIds.forEach(chatId => {
-        bot.telegram.sendMessage(chatId, "Reminder: Update your LinkedIn session cookie file using /updatecookie to prevent expiration. You should check if new one works by running /linkedinsummary. If it doesn't work - contact @Rediska5_5_5 (author). Upload JSON-format cookie file of the LinkedIn session provided by this extension. https://chromewebstore.google.com/detail/export-cookie-json-file-f/nmckokihipjgplolmcmjakknndddifde?hl=ru. Make sure to update it every 12 days to avoid expiration. BE AWARE: YOUR LINKEDIN ACCOUNT MAY BE BANNED FOR SCRAPING DATA!");
-    });
-});
-
 
 console.log('Bot is running and scheduled to send reports every Monday at 09:00 AM.');
 
