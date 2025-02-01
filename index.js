@@ -72,7 +72,7 @@ async function scrapeWebsite(url) {
     const browser = await puppeteer.launch({ executablePath: '/usr/bin/chromium-browser', args: ['--disable-gpu', '--disable-setuid-sandbox', '--no-sandbox', '--no-zygote'] });
     const page = await browser.newPage();
     await page.setDefaultNavigationTimeout(0);
-    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: '12000' });
+    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: '1200000' });
 
     const scrollPageToBottom = async () => {
         await page.evaluate(() => {
@@ -108,7 +108,7 @@ async function scrapeLinkedIn(company, linkedinUrl) {
         await page.setCookie(...cookies);
     }
 
-    await page.goto(linkedinUrl, { waitUntil: 'domcontentloaded', timeout: '120000' });
+    await page.goto(linkedinUrl, { waitUntil: 'domcontentloaded', timeout: '1200000' });
 
     const scrollPageToBottom = async () => {
         await page.evaluate(() => {
