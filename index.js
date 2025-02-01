@@ -114,7 +114,7 @@ async function generateWebsiteReport() {
         console.log(`Processing website content for ${company}...`);
         let content = await scrapeWebsite(url);
         const summary = await summarizeContent(content);
-        report += `\n\n${company} published on their website articles that cover these topics:\n\n${summary}\n`;
+        report += `\n\n\n\n\n${company} published on their website articles that cover these topics:\n\n${summary}\n`;
     }
     return report;
 }
