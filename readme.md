@@ -26,5 +26,6 @@ OPENAI_API_KEY=sk-proj-sfsfsdf-sdfsdfjoSDFijIODFisdfuisifsjkfjlSJkfdjskldfsdf
 ```
 2. Fill out ```urls.json``` file with your links.
 3. Create ```linkedin_cookie.json``` file and paste there your linkedin session cookie json-content from this extension https://chromewebstore.google.com/detail/export-cookie-json-file-f/nmckokihipjgplolmcmjakknndddifde.
-4. execute ```npm install .```.
-5. start with ```npm start```.
+4. Create ```chat_ids.json``` and start the bot with ```/start``` command to register your chat id.
+5. execute ```npm install .```.
+6. start with ```npm start```.

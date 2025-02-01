@@ -131,4 +131,5 @@ dist
 .idea
 linkedin_cookie.json
 package-lock.json
+chat_ids.json
 
