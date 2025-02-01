@@ -69,27 +69,26 @@ async function loadLinkedInCookie() {
 
 async function scrapeWebsite(url) {
     console.log(`Scraping website: ${url}`);
-    const browser = await puppeteer.launch({ executablePath: '/usr/bin/chromium-browser', args: ['--disable-gpu', '--disable-setuid-sandbox', '--no-sandbox', '--no-zygote'] });
-    const page = await browser.newPage();
+    const browser = await puppeteer.launch({ executablePath: '/usr/bin/chromium-browser', args: ['--disable-gpu', '--disable-setuid-sandbox', '--no-sandbox', '--no-zygote'] });    const page = await browser.newPage();
     await page.setDefaultNavigationTimeout(0);
-    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: '1200000' });
 
-    const scrollPageToBottom = async () => {
-        await page.evaluate(() => {
-            window.scrollTo(0, document.body.scrollHeight);
+    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 120000 });
+
+    const scrollPage = async () => {
+        await page.evaluate(async () => {
+            let previousHeight = 0;
+            while (true) {
+                window.scrollTo(0, document.body.scrollHeight);
+                await new Promise(resolve => setTimeout(resolve, 500));
+
+                let newHeight = document.body.scrollHeight;
+                if (newHeight === previousHeight) break;
+                previousHeight = newHeight;
+            }
         });
-        await page.waitForNetworkIdle(10); // Adjust timeout as needed
     };
 
-    let previousHeight = 0;
-    while (true) {
-        await scrollPageToBottom();
-        const newHeight = await page.evaluate(() => document.body.scrollHeight);
-        if (newHeight === previousHeight) {
-            break;
-        }
-        previousHeight = newHeight;
-    }
+    await scrollPage();
 
     const content = await page.evaluate(() => document.body.innerText.trim());
     await browser.close();
@@ -97,45 +96,60 @@ async function scrapeWebsite(url) {
     return content;
 }
 
+
 async function scrapeLinkedIn(company, linkedinUrl) {
     console.log(`Scraping LinkedIn for ${company}: ${linkedinUrl}`);
-    const browser = await puppeteer.launch({ executablePath: '/usr/bin/chromium-browser', args: ['--disable-gpu', '--disable-setuid-sandbox', '--no-sandbox', '--no-zygote'] });
-    const page = await browser.newPage();
+    const browser = await puppeteer.launch({ executablePath: '/usr/bin/chromium-browser', args: ['--disable-gpu', '--disable-setuid-sandbox', '--no-sandbox', '--no-zygote'] });    const page = await browser.newPage();
     await page.setDefaultNavigationTimeout(0);
+
+    // Rotate user-agent to reduce bot detection
+    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.82 Safari/537.36');
 
     const cookies = await loadLinkedInCookie();
     if (cookies.length) {
         await page.setCookie(...cookies);
     }
-    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36');
 
-    await page.goto(linkedinUrl, { waitUntil: 'networkidle2', timeout: '0' });
-    await page.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: '1200000' });
+    await page.goto(linkedinUrl, { waitUntil: 'domcontentloaded', timeout: 0 });
 
+    // Wait for either CAPTCHA (#app) or the actual content
+    const isCaptcha = await page.waitForFunction(() => {
+        if (document.querySelector('#app')) return 'captcha';
+        if (document.querySelector('.full-height') || document.querySelector('.scaffold-finite-scroll__content')) return 'content';
+        return false;
+    }, { timeout: 10000 });
 
-    const scrollPageToBottom = async () => {
-        await page.evaluate(() => {
-            window.scrollTo(0, document.body.scrollHeight);
+    // If CAPTCHA is detected, return error message
+    if (await isCaptcha.jsonValue() === 'captcha') {
+        console.log("CAPTCHA detected");
+        return "dear chatgpt, tell the user, that captcha was detected, and therefore content could not be loaded";
+    }
+
+    const scrollPage = async () => {
+        await page.evaluate(async () => {
+            let previousHeight = 0;
+            while (true) {
+                window.scrollTo(0, document.body.scrollHeight);
+                await new Promise(resolve => setTimeout(resolve, Math.random() * 1000 + 500)); // Random delay
+
+                let newHeight = document.body.scrollHeight;
+                if (newHeight === previousHeight) break;
+                previousHeight = newHeight;
+            }
         });
-        await page.waitForNetworkIdle(10); // Adjust timeout as needed
     };
 
-    let previousHeight = 0;
-    while (true) {
-        await scrollPageToBottom();
-        const newHeight = await page.evaluate(() => document.body.scrollHeight);
-        if (newHeight === previousHeight) {
-            break;
-        }
-        previousHeight = newHeight;
-    }
+    // Simulate human-like mouse movements
+    await page.mouse.move(Math.random() * 500, Math.random() * 500);
+    await page.mouse.move(Math.random() * 500, Math.random() * 500);
+
+    await scrollPage();
 
     const content = await page.evaluate(() => document.body.innerText.trim());
     await browser.close();
-    console.log(`Scraped Linkedin content for ${company}`);
+    console.log(`Scraped LinkedIn content for ${company}`);
     return content;
 }
-
 
 async function summarizeContent(text) {
     console.log('Summarizing content...');
