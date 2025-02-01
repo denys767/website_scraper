@@ -71,7 +71,7 @@ async function summarizeContent(text) {
     console.log('Summarizing content...');
     const response = await openai.chat.completions.create({
         model: "gpt-4o-mini",
-        messages: [{ role: "system", content: "You are given content scraped from corporate websites. Your task is to ignore site's info such as company values, services, goals etc. and focus ONLY on detected articles, blog-posts etc. When you filter out the text for articles, blog-posts etc., return me a bullet list of briefly summarized topics, which those articles cover. (- topic1.\n - topic2.\n .Be as consise AS POSSIBLE!!!" },
+        messages: [{ role: "system", content: "You are given content scraped from corporate websites. Your task is to ignore site's info such as company values, services, goals etc. and focus ONLY on detected articles, blog-posts etc. When you filter out the text for articles, blog-posts etc., return me a bullet list of briefly summarized topics, which those articles cover. Each topic should be followed by your opinion on this topic (- topic1. \n GPT's opinion on topic:bla-bla-bla\n - topic2. \n GPT's opinion on topic:bla-bla-bla). Try to give opinion on EVERY topic and be as consise AS POSSIBLE!!!" },
         { role: "user", content: text }],
         max_tokens: 3000
     });
