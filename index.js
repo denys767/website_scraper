@@ -69,28 +69,28 @@ async function loadLinkedInCookie() {
 
 async function scrapeWebsite(url) {
     console.log(`Scraping website: ${url}`);
-    const browser = await puppeteer.launch({headless: true});
+    const browser = await puppeteer.launch({ executablePath: '/usr/bin/chromium-browser', args: ['--disable-gpu', '--disable-setuid-sandbox', '--no-sandbox', '--no-zygote'] });
     const page = await browser.newPage();
     await page.setDefaultNavigationTimeout(0);
-    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: '0' });
+    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: '12000' });
 
     const scrollPageToBottom = async () => {
-      await page.evaluate(() => {
-        window.scrollTo(0, document.body.scrollHeight);
-      });
-      await page.waitForNetworkIdle(10); // Adjust timeout as needed
+        await page.evaluate(() => {
+            window.scrollTo(0, document.body.scrollHeight);
+        });
+        await page.waitForNetworkIdle(10); // Adjust timeout as needed
     };
-  
+
     let previousHeight = 0;
     while (true) {
-      await scrollPageToBottom();
-      const newHeight = await page.evaluate(() => document.body.scrollHeight);
-      if (newHeight === previousHeight) {
-        break;
-      }
-      previousHeight = newHeight;
+        await scrollPageToBottom();
+        const newHeight = await page.evaluate(() => document.body.scrollHeight);
+        if (newHeight === previousHeight) {
+            break;
+        }
+        previousHeight = newHeight;
     }
-    
+
     const content = await page.evaluate(() => document.body.innerText.trim());
     await browser.close();
     console.log(`Scraped content from ${url}`);
@@ -99,34 +99,34 @@ async function scrapeWebsite(url) {
 
 async function scrapeLinkedIn(company, linkedinUrl) {
     console.log(`Scraping LinkedIn for ${company}: ${linkedinUrl}`);
-    const browser = await puppeteer.launch({headless: true});
+    const browser = await puppeteer.launch({ executablePath: '/usr/bin/chromium-browser', args: ['--disable-gpu', '--disable-setuid-sandbox', '--no-sandbox', '--no-zygote'] });
     const page = await browser.newPage();
     await page.setDefaultNavigationTimeout(0);
-    
+
     const cookies = await loadLinkedInCookie();
     if (cookies.length) {
         await page.setCookie(...cookies);
     }
-    
-    await page.goto(linkedinUrl, { waitUntil: 'domcontentloaded', timeout: '0' });
+
+    await page.goto(linkedinUrl, { waitUntil: 'domcontentloaded', timeout: '120000' });
 
     const scrollPageToBottom = async () => {
-      await page.evaluate(() => {
-        window.scrollTo(0, document.body.scrollHeight);
-      });
-      await page.waitForNetworkIdle(10); // Adjust timeout as needed
+        await page.evaluate(() => {
+            window.scrollTo(0, document.body.scrollHeight);
+        });
+        await page.waitForNetworkIdle(10); // Adjust timeout as needed
     };
-  
+
     let previousHeight = 0;
     while (true) {
-      await scrollPageToBottom();
-      const newHeight = await page.evaluate(() => document.body.scrollHeight);
-      if (newHeight === previousHeight) {
-        break;
-      }
-      previousHeight = newHeight;
+        await scrollPageToBottom();
+        const newHeight = await page.evaluate(() => document.body.scrollHeight);
+        if (newHeight === previousHeight) {
+            break;
+        }
+        previousHeight = newHeight;
     }
-    
+
     const content = await page.evaluate(() => document.body.innerText.trim());
     await browser.close();
     console.log(`Scraped Linkedin content for ${company}`);
@@ -202,7 +202,7 @@ async function generateLinkedInReport() {
 
 bot.command('websitesummary', async (ctx) => {
     console.log(`User requested website summary: ${ctx.chat.id}`);
-    ctx.reply("Generating website summary, please wait for 2-4 minutes...");
+    ctx.reply("Generating website summary, please wait for 3-5 minutes...");
     try {
         const report = await generateWebsiteReport();
         const messageParts = splitMessage(report);
@@ -215,7 +215,7 @@ bot.command('websitesummary', async (ctx) => {
 
 bot.command('linkedinsummary', async (ctx) => {
     console.log(`User requested LinkedIn summary: ${ctx.chat.id}`);
-    ctx.reply("Generating LinkedIn summary, please wait for 2-4 minutes...");
+    ctx.reply("Generating LinkedIn summary, please wait for 3-5 minutes...");
     try {
         const report = await generateLinkedInReport();
         const messageParts = splitMessage(report);
@@ -228,12 +228,12 @@ bot.command('linkedinsummary', async (ctx) => {
 
 bot.command('fullsummary', async (ctx) => {
     console.log(`User requested full summary: ${ctx.chat.id}`);
-    ctx.reply("Generating full summary, please wait for 6-8 minutes...");
+    ctx.reply("Generating full summary, please wait for 7-9 minutes...");
     try {
         const websiteReport = await generateWebsiteReport();
         const linkedinReport = await generateLinkedInReport();
-        const fullReport = `${websiteReport}\n\n\n\n${linkedinReport}`;
-        
+        const fullReport = `${websiteReport}\n\n\n\nn${linkedinReport}`;
+
         const messageParts = splitMessage(fullReport);
         messageParts.forEach(part => ctx.reply(part, { parse_mode: 'Markdown' }));
     } catch (error) {

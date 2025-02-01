@@ -29,12 +29,5 @@ OPENAI_API_KEY=sk-proj-sfsfsdf-sdfsdfjoSDFijIODFisdfuisifsjkfjlSJkfdjskldfsdf
 4. Create ```chat_ids.json``` and start the bot with ```/start``` command to register your chat id.
 5. execute ```npm install .```
 6. start with ```npm start```
-7. If you run this bot on linux, you are likely to encounter this error
-```
-0|index  | Error generating website summary: Error: Failed to launch the browser process!
-0|index  | /root/.cache/puppeteer/chrome/linux-131.0.6778.204/chrome-linux64/chrome: error while loading shared libraries: libnss3.so: cannot open shared object file: No such file or directory
-```
-To counter this, install chromium-browser ```apt-get install chromium -y``` and change your browser values in ```index.js``` like this:
-```
-const browser = await puppeteer.launch({ executablePath: '/usr/bin/chromium-browser', args: [ '--disable-gpu', '--disable-setuid-sandbox', '--no-sandbox', '--no-zygote' ] });
-```
+7. If you run this bot on linux, install ```chromium``` (```apt-get install chromium -y```). If you run it in Windows, change all ```const browser;``` to ```const browser = await puppeteer.launch({headless: true});```
+
