@@ -3,7 +3,7 @@
 2. Start the bot to subscribe to weekly summaries at Monday 9am.
 3. Execute bot's commands provided in its menu to get summaries manually.
 ![alt text](/images/image2.png)
-4. Update bot's cookies **every 12 days** using instruction below. If you don't update cookies, **LinkedIn summaries will stop working.**
+4. Update bot's cookies **every 12-13 days** using instruction below. If you don't update cookies, **LinkedIn summaries will stop working, because cookies expire in 13-14 days!**
 
 ## How to update LinkedIn Cookie?
 1. Download this extension: https://chromewebstore.google.com/detail/export-cookie-json-file-f/nmckokihipjgplolmcmjakknndddifde
