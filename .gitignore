@@ -130,4 +130,5 @@ dist
 .pnp.*
 .idea
 linkedin_cookie.json
+package-lock.json
 
