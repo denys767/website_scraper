@@ -107,8 +107,11 @@ async function scrapeLinkedIn(company, linkedinUrl) {
     if (cookies.length) {
         await page.setCookie(...cookies);
     }
+    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36');
 
-    await page.goto(linkedinUrl, { waitUntil: 'domcontentloaded', timeout: '1200000' });
+    await page.goto(linkedinUrl, { waitUntil: 'networkidle2', timeout: '0' });
+    await page.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: '1200000' });
+
 
     const scrollPageToBottom = async () => {
         await page.evaluate(() => {
