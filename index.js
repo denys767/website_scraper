@@ -229,7 +229,7 @@ bot.command('linkedinsummary', async (ctx) => {
 
 bot.command('fullsummary', async (ctx) => {
     console.log(`User requested full summary: ${ctx.chat.id}`);
-    ctx.reply("Generating full summary, please wait for 4-6 minutes...");
+    ctx.reply("Generating full summary, please wait for 6-8 minutes...");
     try {
         const websiteReport = await generateWebsiteReport();
         const linkedinReport = await generateLinkedInReport();
