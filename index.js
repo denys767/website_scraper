@@ -232,7 +232,7 @@ bot.command('fullsummary', async (ctx) => {
     try {
         const websiteReport = await generateWebsiteReport();
         const linkedinReport = await generateLinkedInReport();
-        const fullReport = `${websiteReport}\n\n\n\nn${linkedinReport}`;
+        const fullReport = `${websiteReport}\n\n\n\n${linkedinReport}`;
         
         const messageParts = splitMessage(fullReport);
         messageParts.forEach(part => ctx.reply(part, { parse_mode: 'Markdown' }));
