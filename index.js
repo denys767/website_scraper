@@ -1,6 +1,5 @@
 import dotenv from 'dotenv';
 import puppeteer from 'puppeteer';
-import { getInjectableScript } from 'idcac-playwright';
 import OpenAI from 'openai';
 import { Telegraf } from 'telegraf';
 import cron from 'node-cron';
